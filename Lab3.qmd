@@ -111,6 +111,7 @@ nbi_hampshire |>
 ::: callout-important
 ###### Question 4 (3 pts)
 
+
 In the plot below, assign the shape of the data on the plot by setting `shape=` to the categorical variable `STRUCTURE_KIND_043A_L`. Remember that, in this case, shape is an aesthetic, so this must be added inside of the `aes()` function. Add a label for the legend by setting `shape=` in the `labs()` function to a phrase that describes the shape variable.
 
 ```{r}
