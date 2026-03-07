@@ -1,0 +1,288 @@
+---
+title: "Lab #3: Visualization Aesthetics (30 pts)"
+author: "Jericho Lawson<br/>
+  <span style = 'font-size: 70%;'>
+  [Statistical & Data Sciences](http://www.smith.edu/sds), Smith College<br/>
+  </span> Spring 2026 <br/>
+  <span style = 'font-size: 70%;'>
+  Lab adopted from Lindsay Poirier"
+format:
+  html:
+    code-fold: false
+execute: 
+  echo: true
+knitr:
+  opts_chunk: 
+    message: false
+editor: source
+---
+
+## Introduction
+
+Place necessary code (e.g. library and dataset loading) into the code chunk below:
+
+```{r}
+library(tidyverse)
+library(RColorBrewer)
+counties <- read_csv("https://raw.githubusercontent.com/sds-192-intro-fall22/sds-192-public-website-quarto/a8b64e3070ca2543b904d4d92780b09e6062ced6/website/data/nbi_counties.csv")
+route_prefixes <- read_csv("https://raw.githubusercontent.com/sds-192-intro-fall22/sds-192-public-website-quarto/a8b64e3070ca2543b904d4d92780b09e6062ced6/website/data/nbi_route_pre.csv")
+maintenance <- read_csv("https://raw.githubusercontent.com/sds-192-intro-fall22/sds-192-public-website-quarto/a8b64e3070ca2543b904d4d92780b09e6062ced6/website/data/nbi_maintenance.csv")
+kinds <- read_csv("https://raw.githubusercontent.com/sds-192-intro-fall22/sds-192-public-website-quarto/a8b64e3070ca2543b904d4d92780b09e6062ced6/website/data/nbi_kind.csv")
+
+nbi_ma <- read.delim("https://www.fhwa.dot.gov/bridge/nbi/2024/delimited/MA24.txt", sep = ",") |>
+  left_join(counties) |>
+  left_join(route_prefixes) |>
+  left_join(maintenance) |>
+  left_join(kinds) |>
+  filter(SERVICE_ON_042A == 1) |>
+  select(STRUCTURE_NUMBER_008, COUNTY_CODE_003_L, ROUTE_PREFIX_005B_L, MAINTENANCE_021_L, YEAR_BUILT_027, ADT_029, STRUCTURE_KIND_043A_L, STRUCTURAL_EVAL_067, BRIDGE_IMP_COST_094) |>
+  mutate(STRUCTURE_KIND_043A_L = 
+           case_when(
+             STRUCTURE_KIND_043A_L == "Concrete continuous" ~ "Concrete",
+             STRUCTURE_KIND_043A_L == "Steel continuous" ~ "Steel",
+             STRUCTURE_KIND_043A_L == "Prestressed concrete continuous" ~ "Prestressed concrete",
+             TRUE ~ STRUCTURE_KIND_043A_L)) |>
+  mutate(BRIDGE_IMP_COST_094 = BRIDGE_IMP_COST_094 * 1000)
+
+nbi_hampshire <- nbi_ma |> filter(COUNTY_CODE_003_L == "Hampshire")
+
+rm(counties, kinds, maintenance, route_prefixes)
+```
+
+## Questions
+
+::: callout-important
+###### Question 1 (3 pts)
+
+In the code below, adjust the size to `2` and the alpha to `0.5`. Set the position to `"jitter"`. Note how this changes the plot.
+
+```{r}
+nbi_hampshire |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = STRUCTURAL_EVAL_067)) +
+  geom_point(size = 2, alpha = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, Hampshire County, MA, 2024",
+       x = "Year Built", 
+       y = "Structural Evaluation") +
+  theme_minimal()
+##TA Feedback: This graph looks awesome! +3
+##Total for Q1: 3 pts
+```
+:::
+
+-   it made the dots more spread out and it made it better to understand
+
+::: callout-important
+###### Question 2 (3 pts)
+
+In the plot below, color the points on the plot with a qualitative palette by setting `col=` to the categorical variable `ROUTE_PREFIX_005B_L`. Remember that, in this case, color is an aesthetic, so this must be added inside of the `aes()` function. Add a label for the legend by setting `col=` in the `labs()` function to a phrase that describes the color variable.
+
+```{r}
+nbi_hampshire |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = STRUCTURAL_EVAL_067,
+             col = "ROUTE_PREFIX_005B_L")) +
+  geom_point(size = 2, alpha = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, Hampshire County, MA, 2024", col= "Color of route ",
+       x = "Year Built", 
+       y = "Structural Evaluation")
+  theme_minimal()
+##TA Feedback: Try putting the column name that your want the graph to be colored by on it's own as string instead of in quotes. For your labeling put the label you want for the color legend in quotes, the rest should fill itself out. Also don't forget to add a + sign at the end of the line before theme_minimal(). +1.5
+  #Correct ggplot function
+  #ggplot(aes(x = YEAR_BUILT_027, 
+             #y = STRUCTURAL_EVAL_067,
+             #col = ROUTE_PREFIX_005B_L)) +
+ #Correct labeling
+  #labs(title = "Highway Bridge Conditions, Hampshire County, MA, 2024",
+      # x = "Year Built", 
+       #y = "Structural Evaluation",
+       #col = "Route Prefix") 
+##Total for Q1-Q2: 4.5 pts
+  
+```
+:::
+
+::: callout-important
+###### Question 3 (3 pts)
+
+Copy the completed plot from the last exercise below but swap out the variable you mapped to the color aesthetic with a numeric variable from the dataset. Be sure to also adjust the legend label. What kind of palette gets created? What new information do you gain about Hampshire County bridges from the plot? Note your interpretations in your quarto file.
+
+```{r}
+nbi_hampshire |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = BRIDGE_IMP_COST_094,
+             col = BRIDGE_IMP_COST_094)) +
+  geom_point(size = 2, alpha = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, Hampshire County, MA, 2024", col= "Color of Bridge cost ",
+       x = "Year Built", 
+       y = "Structural Evaluation") +
+  theme_minimal()
+##TA Feedback: Don't put the column name that you want the graph colored by in quotes. Your graph should turn out great that way. +2.5
+#Correct ggplot
+  #ggplot(aes(x = YEAR_BUILT_027, 
+             #y = BRIDGE_IMP_COST_094),
+#Total for Q1-Q3: 7 pts
+```
+:::
+
+-   it goes from down to up instead of all of the dots leaning towards the right and only on top
+
+::: callout-important
+###### Question 4 (3 pts)
+
+
+In the plot below, assign the shape of the data on the plot by setting `shape=` to the categorical variable `STRUCTURE_KIND_043A_L`. Remember that, in this case, shape is an aesthetic, so this must be added inside of the `aes()` function. Add a label for the legend by setting `shape=` in the `labs()` function to a phrase that describes the shape variable.
+
+```{r}
+nbi_hampshire |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = STRUCTURAL_EVAL_067,
+             shape = STRUCTURE_KIND_043A_L)) +
+  geom_point(size = 2, alpha = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, Hampshire County, MA, 2024",
+       x = "Year Built", 
+       y = "Structural Evaluation",
+       shape = "Shape of structural kind") +
+  theme_minimal()
+##TA Feedback: Nice job on this graph! +3
+##Total for Q1-Q4: 10 pts
+```
+:::
+
+-   there are a lot of + which means there is a lot of steel and I see dots which means concrete and some squares which means Prestressed concrete
+
+::: callout-important
+###### Question 5 (3 pts)
+
+Copy one of your plots from above, and inside the `aes()` function, set `size=` to a numeric variable not already represented on the plot. Keep in mind that you'll need to remove the `size=` *attribute* from `geom_point()` for the points to size correctly. Be sure to also adjust the legend labels. What new information do you gain about Hampshire County bridges from the plot?
+
+```{r}
+nbi_hampshire |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = ADT_029,
+             col = ADT_029,
+             size = ADT_029)) +
+  geom_point(alpha = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, Hampshire County, MA, 2024", col= "Color of Bridge cost ",
+       x = "Year Built", 
+       y = "The average daily traffic volume")
+  theme_minimal()
+  ##TA Feedback: Try using different columns or variables for color, and size a your y-axis that way you can show more on just one graph! +2.5
+##Total for Q1-Q5: 12.5 pts
+```
+:::
+
+-   i learned that there was a lot more traffic in 1950
+
+::: callout-important
+###### Question 6 (3 pts)
+
+In the plot below, change the y-axis scale from `continuous` to `log10`. You might reference the formula specified above or reference the ggplot cheatsheet for help. Note that your y-axis will appear in scientific notation. Convert it to comma notation by adding: `labels = scales::comma` as an argument in the scale function call.
+
+```{r}
+nbi_ma |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = BRIDGE_IMP_COST_094)) +
+  geom_point(size = 1, alpha = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, MA, 2024",
+       x = "Year Built", 
+       y = "Bridge Improvement Costs") +
+  theme_minimal() + 
+  scale_y_log10(labels = scales::comma)
+##TA Feedback: This graph looks amazing! +3
+##Total for Q1-Q6: 15.5
+```
+:::
+
+::: callout-important
+###### Question 7 (3 pts)
+
+The Interstate Highway Act of 1956 (signed under Dwight D. Eisenhower) established the U.S.'s interstate highway system and is considered the country's largest public works project. Adjust the x-axis scale of the plot below to help tell this story. Specifically, bin years into before 1954 (when Eisenhower was elected) and 1954-2021. Set the label at 1954 to "Eisenhower Elected" and the label at 2021 to "Today."
+
+```{r}
+nbi_ma |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = ROUTE_PREFIX_005B_L)) +
+  geom_point(size = 1, alpha = 0.2, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, MA, 2024",
+       x = "Year Built", 
+       y = "Route Prefix") +
+  theme_minimal() +
+  scale_x_binned(breaks= c(1954,2021), labels = c("Eisenhower Elected", "Today"))
+##TA Feedback: This graph looks fantastic! +3
+##Total for Q1-Q7: 18.5 pts
+```
+:::
+
+::: callout-important
+###### Question 8 (3 pts)
+
+Add \``` + scale_color_brewer()` `` to the `ggplot()` object below and assign a categorical palette. Refer to the ggplot cheatsheet or the help pages for help with formatting the function call.
+
+```{r}
+nbi_hampshire |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = STRUCTURAL_EVAL_067,
+             col = ROUTE_PREFIX_005B_L)) +
+  scale_color_brewer()+
+  geom_point(size = 2, alpha = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, Massachusetts, 2024",
+       x = "Year Built", 
+       y = "Structural Evaluation",
+       col = "Route Prefix") +
+  theme_minimal()
+##TA Feedback: Try adding a specific color to your scale_color_brewer function, also this is somewhat subjective but usually add ons like scale_color_brewer go at the end of the graph calls, like after geom_point. +2.5
+##Total for Q1-Q8: 21 pts
+```
+:::
+
+::: callout-important
+###### Question 9 (3 pts)
+
+Add \``` + scale_color_distiller()` `` to the `ggplot()` object below and assign a sequential palette. By default the colors will be ordered from darkest to lightest. Add an argument to the function call to reverse the direction of the colors. Refer to the ggplot cheatsheet or the help pages for help with formatting the function call.
+
+```{r}
+nbi_hampshire |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = STRUCTURAL_EVAL_067,
+             col = ADT_029)) +
+  coord_flip()+
+  scale_color_distiller()+
+  geom_point(size = 2, alpha = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, MA, 2024",
+       x = "Year Built", 
+       y = "Structural Evaluation",
+       col = "Average Daily Traffic") +
+  theme_minimal()
+##TA Feedback: This graph looks nice, again I would add coord_flip and scale_color_distiller functions after geom_point but your code runs so nice job! +3
+##Total for Q1-Q9: 24 pts
+```
+:::
+
+::: callout-important
+###### Question 10 (3 pts)
+
+Facet the plot below by `STRUCTURE_KIND_043A_L` to see the degree of structural deficiencies for different kinds of highway bridges of different ages in Massachusetts.
+
+```{r}
+nbi_ma |>
+  ggplot(aes(x = YEAR_BUILT_027, 
+             y = STRUCTURAL_EVAL_067)) +
+  geom_point(alpha = 0.1, size = 0.5, position = "jitter") +
+  labs(title = "Highway Bridge Conditions, MA 2024",
+       x = "Year Built", 
+       y = "Structural Evaluation") +
+  theme_minimal()+
+  facet_wrap(vars(STRUCTURE_KIND_043A_L))
+##TA Feedback: This graph looks great! +3
+##Total for Q1-Q10: 27
+```
+:::
+
+::: callout-caution
+## Ethical Considerations
+
+Federal regulations require that highway bridges and public road bridges in the United States must be inspected every two years, and bridge inspectors must follow a strict set of guidelines when performing a bridge inspection. If a bridge is discovered to have certain structural deficiencies, it may be shut down or may require more frequent inspections. Despite these widespread safety standards, we still sometimes see catastrophic bridge failures or discover critical bridge conditions that could potentially put lives at risk. This could result from human error, low vigilance or attention to detail during inspections, lack of understanding/adherence to inspection standards, or inspection equipment malfunctions. What kinds of interventions do you think should be put in place to ensure the accountability of bridge inspection data? What kinds of policies, practices, or programs could help to minimize mistakes or encourage that mistakes be fixed promptly? Share your ideas on our `discussions` Slack channel.
+
+##TA Grading: Final score 27/30 or 90%
+:::
