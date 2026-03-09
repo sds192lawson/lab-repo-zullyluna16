@@ -88,6 +88,7 @@ nbi_hampshire |>
        y = "Structural Evaluation")
   theme_minimal()
 ##TA Feedback: Try putting the column name that your want the graph to be colored by on it's own as string instead of in quotes. For your labeling put the label you want for the color legend in quotes, the rest should fill itself out. Also don't forget to add a + sign at the end of the line before theme_minimal(). +1.5
+  
   #Correct ggplot function
   #ggplot(aes(x = YEAR_BUILT_027, 
              #y = STRUCTURAL_EVAL_067,
@@ -97,6 +98,7 @@ nbi_hampshire |>
       # x = "Year Built", 
        #y = "Structural Evaluation",
        #col = "Route Prefix") 
+  
 ##Total for Q1-Q2: 4.5 pts
   
 ```
@@ -167,8 +169,8 @@ nbi_hampshire |>
        x = "Year Built", 
        y = "The average daily traffic volume")
   theme_minimal()
-  ##TA Feedback: Try using different columns or variables for color, and size a your y-axis that way you can show more on just one graph! +2.5
-##Total for Q1-Q5: 12.5 pts
+  ##TA Feedback: I would suggest using different columns or variables for color, and size a your y-axis that way you can show more on just one graph! +3
+##Total for Q1-Q5: 13 pts
 ```
 :::
 
@@ -190,7 +192,7 @@ nbi_ma |>
   theme_minimal() + 
   scale_y_log10(labels = scales::comma)
 ##TA Feedback: This graph looks amazing! +3
-##Total for Q1-Q6: 15.5
+##Total for Q1-Q6: 16
 ```
 :::
 
@@ -210,7 +212,7 @@ nbi_ma |>
   theme_minimal() +
   scale_x_binned(breaks= c(1954,2021), labels = c("Eisenhower Elected", "Today"))
 ##TA Feedback: This graph looks fantastic! +3
-##Total for Q1-Q7: 18.5 pts
+##Total for Q1-Q7: 19 pts
 ```
 :::
 
@@ -231,8 +233,8 @@ nbi_hampshire |>
        y = "Structural Evaluation",
        col = "Route Prefix") +
   theme_minimal()
-##TA Feedback: Try adding a specific color to your scale_color_brewer function, also this is somewhat subjective but usually add ons like scale_color_brewer go at the end of the graph calls, like after geom_point. +2.5
-##Total for Q1-Q8: 21 pts
+##TA Feedback: Try adding a specific color to your scale_color_brewer function by adding palette=[color set you would like to use], also usually add ons like scale_color_brewer go at the end of the graph calls. +3
+##Total for Q1-Q8: 22 pts
 ```
 :::
 
@@ -255,7 +257,7 @@ nbi_hampshire |>
        col = "Average Daily Traffic") +
   theme_minimal()
 ##TA Feedback: This graph looks nice, again I would add coord_flip and scale_color_distiller functions after geom_point but your code runs so nice job! +3
-##Total for Q1-Q9: 24 pts
+##Total for Q1-Q9: 25 pts
 ```
 :::
 
@@ -275,7 +277,7 @@ nbi_ma |>
   theme_minimal()+
   facet_wrap(vars(STRUCTURE_KIND_043A_L))
 ##TA Feedback: This graph looks great! +3
-##Total for Q1-Q10: 27
+##Total for Q1-Q10: 28
 ```
 :::
 
@@ -284,5 +286,6 @@ nbi_ma |>
 
 Federal regulations require that highway bridges and public road bridges in the United States must be inspected every two years, and bridge inspectors must follow a strict set of guidelines when performing a bridge inspection. If a bridge is discovered to have certain structural deficiencies, it may be shut down or may require more frequent inspections. Despite these widespread safety standards, we still sometimes see catastrophic bridge failures or discover critical bridge conditions that could potentially put lives at risk. This could result from human error, low vigilance or attention to detail during inspections, lack of understanding/adherence to inspection standards, or inspection equipment malfunctions. What kinds of interventions do you think should be put in place to ensure the accountability of bridge inspection data? What kinds of policies, practices, or programs could help to minimize mistakes or encourage that mistakes be fixed promptly? Share your ideas on our `discussions` Slack channel.
 
-##TA Grading: Final score 27/30 or 90%
+##TA Grading: Final score 28/30 or 93.33%
+
 :::
