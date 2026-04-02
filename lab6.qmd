@@ -252,5 +252,5 @@ While this is one of the primary datasets used to direct resources for homelessn
 For more information see @enationallawcenteronhomelessness2017.
 
 Taking into consideration all of these factors, how should we, as data scientists, think about and present this data? Is there value in PIT count data? How should we go about communicating its shortcomings? How might we go about collecting this data in different ways? Share your ideas on our `discussions` Slack channel.
-
+ 
 :::
