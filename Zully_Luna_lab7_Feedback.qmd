@@ -1,0 +1,251 @@
+---
+title: "Lab #7: Components of AI (30 pts)"
+author: "Zully Luna Romero"
+format:
+  html:
+    code-fold: false
+execute: 
+  echo: true
+knitr:
+  opts_chunk: 
+    message: false
+editor: source
+---
+
+## Introduction
+
+As you've seen in this week's lectures, much forethought has to go into the creation of a model for artificial intelligence, whether it is from the business, engineering, or ethical side of things. We will focus on the engineering and ethical portions by using a poorly-made example of a natural language processor using Markov chains.
+
+Before we dive into the mechanics of the model, discuss with others around you and write answers regarding the following questions:
+
+::: {.callout-important}
+###### Q1 (3 pts)
+
+Think about the following sentence: "I am having a great day!". What rules or considerations do I need to follow linguistically in order to convey that sentiment? Is there an order to how those words are being said?
+
+- You will have to make sure that everything in the sentence is the same type 
+  - if they are not the same type (for example, if you have numbers and characters all in one) make sure to convert one into the most flexible type
+    - I think for this case, you will just have to use the quotations arount the whole sentence, making everything into a character
+    - print ("I am having a great day!)
+_ the order is very important because when generating sentences, you won't always have a copy of every sentence ever being said so figuring out the order in which you want to say these words helps create a coherant sentence. 
+
+##TA Feedback: Try thinking about the sentence in the context of the english language not in the context of coding! +2
+
+##Total for Q1: 2 pts
+
+:::
+
+::: {.callout-important}
+###### Q2 (3 pts)
+
+Think about the following sentence: "I am having a great day!". Are there replacements I can make for each word that would still result in a comprehensible sentence?
+
+
+- I am kind of confused by what this question is asking us to do. I think I would say you could replace the "I" and "am" to "you" and "are"? 
+
+##TA Feedback: The question is asking if you could make a coherent sentence with a completley different set of words, like by replacing each word with synonyms. An example sentence would be: Me is doing well today! which is coherent but not gramatically correct. +1
+##Total for Q1-Q2: 3 pts
+
+
+:::
+
+::: {.callout-important}
+###### Q3 (3 pts)
+
+Think about the following sentence: "I am having a great day!". How often am I using each of these words in a sentence? Does it depend on the situation?
+
+
+- I think it depends on the situation but you are most likely to use pronouns, such as "I", more than words such as "day"
+
+##TA Feedback: Please explain why you are more likely to use pronouns than specific nouns like day! +1
+##Total for Q1-Q3: 4 pts
+
+:::
+
+## Behind the AI
+
+Despite over-analyzing the six-worded sentence, it is important to understand the mechanics of this sentence generation when it comes to generating responses. A large-language model (LLM) is a computational model that uses a bunch of data for natural language processing. When we build a model, we want to consider the appropriate methods that can be used for training and results, as well the inputs and outputs associated with our method.
+
+Pivoting back to our discussion on how sentences are created, one model we might create builds upon the idea of predicting what the next word might be given the word before, based on the part of speech and subject. Here, we venture into using [Markov chains](https://en.wikipedia.org/wiki/Markov_chain). 
+
+We will need to assign probabilities (and/or weights) to how the next word of a sentence comes about. Additionally, we'll need a dictionary of words to start with.
+
+There are many sophisticated models that can be used for natural language processing, including but not limited to:
+
+- Deep learning models
+- Neural networks
+- Large-language models
+
+We will not delve into these specific models; rather, we will focus on a more simplistic model to garner a better understanding of how a probabilistic model can fuel generation of a sentence.
+
+I have created two models to aid in our creation of sentences:
+
+- A model to generate probabilities of certain words being used, given their part of speech (i.e. noun, adjective)
+- A model to generate probabilities of certain parts of speech being used next given the part of speech from the previous word
+
+These two models allow for the determination of a word given what part of speech we're using and what the next word might be given what word we've used. As you'll see in a second, this approach is rather interesting.
+
+To incorporate these two models and generate sentences, we will use two different datasets:
+
+- `wordData.csv`: This contains 114 different words with the part of speech they fall under, their usage probability, and the chance of which part of speech comes next.
+  - Words come from the list of most commonly used words in English (Source: [Wikipedia](https://en.wikipedia.org/wiki/Most_common_words_in_English))
+- `tranMatData.csv`: This is a transition matrix that allows us to go from one word to the next.
+
+A transition matrix can be thought of as a grid of outcomes/chances depending on the action. A small example is to determine what mood you'll be in the next day given how you feel currently. If you're in a bad mood today, perhaps there's a 60\% chance you'll be in a good mood tomorrow. On the flip side, if you're in a good mood today, perhaps there will be a 45\% chance you'll be in a good mood tomorrow. When placed in a transition matrix, we get the following:
+
+|        | Happy | Sad  |
+|:-------|:------|:-----|
+| Happy  | 0.45  | 0.55 |
+| Sad    | 0.60  | 0.40 |
+
+In our example, we are using the transition matrix to go from one word to the next. Load in the [wordData.csv](wordData.csv) and [tranMatData.csv](tranMatData.csv) files and then take a look at the `head()` of the two data files.
+
+```{r}
+wordData <- read.csv("Lab Repo/wordData.csv")
+tranMatData <- read.csv("Lab Repo/tranMatData.csv")
+
+head(wordData)
+head(tranMatData)
+```
+
+Answer the following questions below:
+
+::: {.callout-important}
+###### Q4 (3 pts)
+
+Look at `wordData`. The `prob` column provides the probability of that word being used given what its part of speech is. Determine if these probabilities are legitimate for each of these words. What other considerations do I need to make when determining the probability?
+
+
+- I think that this data is too generalized so maybe taking into account different scenerios which could possibly change the numbers
+
+##TA Feedback: Please explain what different scenarios you think the data should take into account. +1
+##Total for Q1-Q4: 5 pts
+ 
+
+:::
+
+::: {.callout-important}
+###### Q5 (3 pts)
+
+Look at `tranMatData`. Each row provides the probability that the corresponding word will be followed by the word specified by the column. Determine if these probabilities are legitimate for each of these words. What other considerations do I need to make when determining the probability?
+
+
+- Again, I think the context in which these words are being used are very important. A lot of these words can be at the end of a sentence but at the same time, they could as be followed by a different word. I think for sure, words like "but", "or", "a", "and", alongiside many others, will never have words that follow right after
+
+##TA Feedback: This is a great answer! +3
+##Total for Q1-Q5: 8 pts
+
+:::
+
+::: {.callout-important}
+###### Q6 (3 pts)
+
+Based on both of the datasets, what are some issues that may arise when using this data?
+
+- I think the fact that there isn't much specificity makes it too easy to generate whichever word in whichever order. If there were more columns, I think it would be easier to generate more words based on those columns.
+
+##TA Feedback: Please explain a bit more what columns you might add to make a model that results in more comprehensible sentences! +2
+##Total for Q1-Q6: 10 pts
+
+:::
+
+## Running the Model
+
+Now onto the fun part -- we are going to create our own sentences! To do so, run the following chunk below:
+
+```{r}
+# Code to provide the first word of the sentence
+sentence = c("the")
+wordInd = which(wordData$word == "the")
+
+# We can specify the number of words we want in our sentence here
+numWords = 6
+
+# Run this code to create the sentence
+for (i in 1:(numWords - 1)){
+  wordInd = sample(1:nrow(wordData), size = 1, prob = tranMatData[wordInd, ])
+  sentence = c(sentence, wordData$word[wordInd])
+}
+
+# Print the sentence here
+paste(sentence, collapse = " ")
+```
+
+There you have it -- we've generated sentences! But as you see, the results are interesting to say the least. You'll notice that every time you run it, you will generate a new sentence. Some may make sense, while others may not. 
+
+As you've probably discussed in previous questions, there are many, many considerations to generating these sentences. The following questions will bring the discussion back full-circle:
+
+
+::: {.callout-important}
+###### Q7 (3 pts)
+
+Run the code above 5 different times using a `numWords` of 6. Copy and paste the results below.
+
+1st time: "the way be to own the"
+2nd time: "the way get world see world"
+3rd time: "the man get place do thing"
+4th time: "the life I person say day"
+5th time: "the eye that things be man"
+6th time: "the man be time to year"
+
+##TA Feedback: These are clearly model generated, nice job! +3
+##Total for Q1-Q7: 13 pts
+
+
+:::
+
+::: {.callout-important}
+###### Q8 (3 pts)
+
+What are some observations you notice from the sentences? Are there any similarities? Differences? Confusions? Do the sentences make sense?
+
+
+- Because we specified that we want the first word of the sentence to be "the", every sentence started with "the"
+- the word that came after "the" lets the user know what the sentence might be about but the next few words don't make sense anymore
+- none of the sentence make any sense which is what I am confused about because I thought they would make sense by the time we ran the code the 6th time
+  - makes me wonder how many tried it will take for it to form a cohesive sentence. 
+- I also notice that for every time I run it, the wordInd value changes
+
+##TA Feedback: Nice answer! +3
+##Total for Q1-Q8: 16 pts
+
+:::
+
+::: {.callout-important}
+###### Q9 (3 pts)
+
+What are some factors we may want to factor into our program aside from:
+the probability of a word being used, and what the next word will be given the part of speech of the previous word? 
+
+- I wonder if we can change it so that instead of the next word going solely based off of the word right before it, it can go based off the number of words there are before it.
+  - for example, in this case, the sentence is programmed to have 6 words in total. Right now, we are generating words that can come after "the" so the next word is a word that is most likely to come after "the". After that word is generated (lets call it word1), word2 get's generated but only based off of word1 instead of also looking at "the". I think we can change this by making the next generated word look at the number of words before it and make an estimated guess on which word is most likely to be use after. 
+  
+##TA Feedback: This is a good idea! +3
+##Total for Q1-Q9: 19 pts
+:::
+
+::: {.callout-important}
+###### Q10 (3 pts)
+
+Suppose we attempted to use this model in lieu of more sophisticated programs like ChatGPT, Gemini, and Claude. What would your perception be? How would this lead to issues with resolving prompts you fed to the programs?
+
+- I think it would cause a lot more confusion because you don't really know what you're going to get until you generate it. It would also be less efficient because if you're confused by the first thing you generate, you're going to have to generate again until you can make sense of the sentence.
+
+##TA Feedback: This is an amazing point! +3
+##Total for Q1-Q10: 22 pts
+:::
+
+## Wrapup
+
+Thankfully, these sophisticated programs are able to answer questions and provide responses that answer our questions, do so in a natural way, and give additional information aside from the initial ask. This is what has made these programs so intriguing and highly used over the last few years.
+
+However, as you've seen with this example, developing these models takes a lot of foresight and power. The factors you've discussed in this activity only scratch the surface of all potential variables and factors to consider when developing a model. Additionally, we only looked at prompt generation and not into other avenues, such as comprehending prompts. 
+
+If you've already exhausted a lot of brain power thinking about these factors, imagine the power it takes to factor these considerations into a series of models and executing the results. The data itself will also compound these actions. Also, as you've seen here, artificial intelligence relies on the success of the models, data, and processes behind the scenes. Nothing is perfect, and at times, you may find that these models will produce odd, incomplete, or unrelated answers.
+
+## Prompt
+
+In Slack (under the `#discussions` channel), provide an example of a time you used an large language model like ChatGPT to resolve a prompt and it generated a rather unusual response. Consider why the response was generated as such.
+
+##TA Grading: Final Score: 22/30 or 73.33%
+  
